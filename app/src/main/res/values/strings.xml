@@ -5,4 +5,7 @@
     <string name="longitud">Longitud:</string>
     <string name="parar_actualizaciones">Parar Actualizaciones</string>
     <string name="iniciar_actualizaciones">Iniciar Actualizaciones</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

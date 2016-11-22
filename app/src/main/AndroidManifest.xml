@@ -3,19 +3,8 @@
     package="com.weather.diegojesuscampos.weather">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
 
-
-    <meta-data
-        android:name="com.google.android.gms.version"
-        android:value="@integer/google_play_services_version" />
-
-    <meta-data
-        android:name="com.google.android.geo.API_KEY"
-        android:value="AIzaSyCu-5irdolg99wwSST1GCObFhDR8HZr3ts" />
-
-    <uses-feature
-        android:glEsVersion="0x00020000"
-        android:required="true"/>
 
 
     <application
@@ -24,6 +13,22 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyBeA38sRIqzBDOhyNqKpIkPnRNY4P5sBuo" />
+
+        <!--AIzaSyCu-5irdolg99wwSST1GCObFhDR8HZr3ts   casa-->
+        <uses-feature
+            android:glEsVersion="0x00020000"
+            android:required="true"/>
+
+
+
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"

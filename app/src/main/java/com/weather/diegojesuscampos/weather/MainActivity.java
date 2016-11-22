@@ -1,14 +1,14 @@
 package com.weather.diegojesuscampos.weather;
 
 import android.Manifest;
-import android.app.Activity;
-import android.content.Intent;
-import android.content.IntentSender;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.DrawableRes;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -17,24 +17,27 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.ToggleButton;
 
+import com.android.volley.RequestQueue;
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.appindexing.Thing;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsResult;
-import com.google.android.gms.location.LocationSettingsStatusCodes;
-import com.weather.diegojesuscampos.weather.Util.Constants;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements   GoogleApiClient.OnConnectionFailedListener,
         GoogleApiClient.ConnectionCallbacks,
@@ -48,10 +51,10 @@ public class MainActivity extends AppCompatActivity implements   GoogleApiClient
     private GoogleApiClient apiClient;
     private LocationRequest locRequest;
 
-    private TextView lblLatitud;
-    private TextView lblLongitud;
-    private ToggleButton btnActualizar;
-
+    private RequestQueue fRequestQueue;
+    private VolleyS volley;
+    private MapWeatherFragment mapWeatherFragment;
+    private BuscarLugarFragment buscarLugarFragment;
 
 
     @Override
@@ -61,8 +64,19 @@ public class MainActivity extends AppCompatActivity implements   GoogleApiClient
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        lblLatitud = (TextView) findViewById(R.id.lblLatitud);
-        lblLongitud = (TextView) findViewById(R.id.lblLongitud);
+        mapWeatherFragment = MapWeatherFragment.newInstance();
+
+
+
+// CARGAMOS EL FRAGMENT DONDE MOSTRAR EL TIEMPO Y EL MAPA DE LA LOCALIZACION
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.add(R.id.contenedor, buscarLugarFragment);
+        transaction.commit();
+
+
+//        lblLatitud = (TextView) findViewById(R.id.lblLatitud);
+//        lblLongitud = (TextView) findViewById(R.id.lblLongitud);
 //        btnActualizar = (ToggleButton) findViewById(R.id.btnActualizar);
 //        btnActualizar.setOnClickListener(new View.OnClickListener() {
 //            @Override
@@ -82,12 +96,27 @@ public class MainActivity extends AppCompatActivity implements   GoogleApiClient
         });
 
 
+        // ATTENTION: This "addApi(AppIndex.API)"was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
         apiClient = new GoogleApiClient.Builder(this)
                 .enableAutoManage(this, this)
                 .addConnectionCallbacks(this)
                 .addApi(LocationServices.API)
-                .build();
+                .addApi(AppIndex.API).build();
     }
+
+//    public void addToQueue(Request request) {
+//        if (request != null) {
+//            request.setTag(this);
+//            if (fRequestQueue == null)
+//                fRequestQueue = volley.getRequestQueue();
+//            request.setRetryPolicy(new DefaultRetryPolicy(
+//                    60000, 3, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+//            ));
+//            onPreStartConnection();
+//            fRequestQueue.add(request);
+//        }
+//    }
 
 //    private void toggleLocationUpdates(boolean enable) {
 //        if (enable) {
@@ -187,7 +216,10 @@ public class MainActivity extends AppCompatActivity implements   GoogleApiClient
             Location lastLocation =
                     LocationServices.FusedLocationApi.getLastLocation(apiClient);
 
-            updateUI(lastLocation);
+            buscarLugarFragment = BuscarLugarFragment.newInstance(lastLocation);
+
+//            mapWeatherFragment.updateUI(lastLocation);
+//            updateUI(lastLocation);
         }
     }
 
@@ -198,15 +230,7 @@ public class MainActivity extends AppCompatActivity implements   GoogleApiClient
         Log.e(LOGTAG, "Se ha interrumpido la conexión con Google Play Services");
     }
 
-    private void updateUI(Location loc) {
-        if (loc != null) {
-            lblLatitud.setText("Latitud: " + String.valueOf(loc.getLatitude()));
-            lblLongitud.setText("Longitud: " + String.valueOf(loc.getLongitude()));
-        } else {
-            lblLatitud.setText("Latitud: (desconocida)");
-            lblLongitud.setText("Longitud: (desconocida)");
-        }
-    }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
@@ -219,8 +243,8 @@ public class MainActivity extends AppCompatActivity implements   GoogleApiClient
                 @SuppressWarnings("MissingPermission")
                 Location lastLocation =
                         LocationServices.FusedLocationApi.getLastLocation(apiClient);
-
-                updateUI(lastLocation);
+                mapWeatherFragment.updateUI(lastLocation);
+//                updateUI(lastLocation);
 
             } else {
                 //Permiso denegado:
@@ -253,7 +277,46 @@ public class MainActivity extends AppCompatActivity implements   GoogleApiClient
 
         Log.i(LOGTAG, "Recibida nueva ubicación!");
 
+        mapWeatherFragment.updateUI(location);
         //Mostramos la nueva ubicación recibida
-        updateUI(location);
+//        updateUI(location);
+    }
+
+
+
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    public Action getIndexApiAction() {
+        Thing object = new Thing.Builder()
+                .setName("Main Page") // TODO: Define a title for the content shown.
+                // TODO: Make sure this auto-generated URL is correct.
+                .setUrl(Uri.parse("http://[ENTER-YOUR-URL-HERE]"))
+                .build();
+        return new Action.Builder(Action.TYPE_VIEW)
+                .setObject(object)
+                .setActionStatus(Action.STATUS_TYPE_COMPLETED)
+                .build();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        apiClient.connect();
+        AppIndex.AppIndexApi.start(apiClient, getIndexApiAction());
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        AppIndex.AppIndexApi.end(apiClient, getIndexApiAction());
+        apiClient.disconnect();
     }
 }

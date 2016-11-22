@@ -13,19 +13,27 @@
     tools:showIn="@layout/activity_main"
     android:orientation="vertical">
 
-    <TextView android:id="@+id/lblLatitud"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/latitud"/>
 
-    <TextView android:id="@+id/lblLongitud"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/longitud"/>
+    <!--<TextView android:id="@+id/lblLatitud"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="@string/latitud"/>-->
 
-    <ToggleButton android:id="@+id/btnActualizar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textOn="@string/parar_actualizaciones"
-        android:textOff="@string/iniciar_actualizaciones" />
+    <!--<TextView android:id="@+id/lblLongitud"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="@string/longitud"/>-->
+
+    <!--<ToggleButton android:id="@+id/btnActualizar"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:textOn="@string/parar_actualizaciones"-->
+        <!--android:textOff="@string/iniciar_actualizaciones" />-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/contenedor"
+        android:orientation="vertical"
+       />
+
 </LinearLayout>
