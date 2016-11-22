@@ -6,33 +6,49 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.widget.AdapterView;
+import android.widget.ListView;
+import android.widget.TextView;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Pattern;
 
 
 public class BuscarLugarFragment extends BaseVolleyFragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 
+    private TextInputLayout tilCiudad;
+    private AdapterBusquedaLugar adapter;
 
+    private static BuscarLugarFragment mInstance;
+
+    private ListView listView;
     private String ciudad;
 
 
     // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private Double lat;
+    private Double lng;
 
     private OnFragmentInteractionListener mListener;
 
@@ -52,7 +68,11 @@ public class BuscarLugarFragment extends BaseVolleyFragment {
 
     public static BuscarLugarFragment newInstance() {
         BuscarLugarFragment fragment = new BuscarLugarFragment();
-        return fragment;
+
+        if(mInstance == null){
+            mInstance = fragment;
+        }
+        return mInstance;
     }
 
     @Override
@@ -60,29 +80,48 @@ public class BuscarLugarFragment extends BaseVolleyFragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
 
-            mParam1 = getArguments().getString(Constants.LAT);
-            mParam2 = getArguments().getString(Constants.LONG);
+            lat = getArguments().getDouble(Constants.LAT);
+            lng = getArguments().getDouble(Constants.LONG);
 
             Geocoder geocoder = new Geocoder(getActivity(), Locale.getDefault());
 
             List<Address> addresses  = null;
             try {
-                addresses = geocoder.getFromLocation(loc.getLatitude(),loc.getLongitude(), 1);
+                addresses = geocoder.getFromLocation(lat,lng, 1);
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
-            String city = addresses.get(0).getLocality();
-
-
+            ciudad = addresses.get(0).getLocality();
+            tilCiudad.getEditText().setText(ciudad);
+            validarNombre(tilCiudad.getEditText().getText().toString());
         }
+
+        tilCiudad.setOnKeyListener(new View.OnKeyListener() {
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                // If the event is a key-down event on the "enter" button
+                if ((event.getAction() == KeyEvent.ACTION_DOWN) &&   (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                    // Perform action on key press
+                    validarNombre(tilCiudad.getEditText().getText().toString());
+                    return true;
+                }
+                return false;
+            }
+        });
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_buscar_lugar, container, false);
+        View view = inflater.inflate(R.layout.fragment_buscar_lugar, container, false);
+
+        tilCiudad = (TextInputLayout) view.findViewById(R.id.til_ciudad);
+        listView= (ListView) view.findViewById(R.id.listView);
+
+
+
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -133,6 +172,22 @@ public class BuscarLugarFragment extends BaseVolleyFragment {
             @Override
             public void onResponse(JSONObject jsonObject) {
 //                label.setText(jsonObject.toString());
+                ArrayList<ObjInfoGeografica> items = parseJson(jsonObject);
+                adapter = new AdapterBusquedaLugar(getActivity().getApplicationContext(),R.layout.item_list_busqueda,items);
+                adapter.mInstance = mInstance;
+                listView.setAdapter(adapter);
+
+                listView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+
+                    }
+                });
                 onConnectionFinished();
             }
         }, new Response.ErrorListener() {
@@ -142,5 +197,51 @@ public class BuscarLugarFragment extends BaseVolleyFragment {
             }
         });
         addToQueue(request);
+    }
+
+    private void validarNombre(String nombre){
+        Pattern patron = Pattern.compile("^[a-zA-Z ]+$");
+        if( patron.matcher(nombre).matches() || nombre.length() > 5){
+            makeRequest();
+        }
+    }
+
+    public ArrayList<ObjInfoGeografica> parseJson(JSONObject jsonObject){
+        // Variables locales
+        ArrayList<ObjInfoGeografica> arrayObjInfGeo = new ArrayList();
+        JSONArray jsonArray= null;
+
+        try {
+            // Obtener el array del objeto
+            jsonArray = jsonObject.getJSONArray("geonames");
+
+            for(int i=0; i<jsonArray.length(); i++){
+
+                try {
+                    JSONObject objeto= jsonArray.getJSONObject(i);
+                    JSONObject puntosCardenale = objeto.getJSONObject("bbox");
+
+                    ObjInfoGeografica obj = new ObjInfoGeografica(objeto.getString("toponymName"),
+                            puntosCardenale.getString("north"),
+                            puntosCardenale.getString("south"), puntosCardenale.getString("east"),
+                            puntosCardenale.getString("west"), objeto.getString("lat"),
+                            objeto.getString("lng") , objeto.getString("countryName"));
+
+                    arrayObjInfGeo.add(obj);
+
+                } catch (JSONException e) {
+                    Log.e("ERROR", "Error de parsing: "+ e.getMessage());
+                }
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return arrayObjInfGeo;
+    }
+
+    public void showWeatherPlace(){
+
     }
 }

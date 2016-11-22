@@ -3,9 +3,27 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.weather.diegojesuscampos.weather.BuscarLugarFragment"
-    android:layout_weight="match_parent"
    android:orientation="vertical">
 
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/til_ciudad"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="32dp">
 
+        <EditText
+            android:id="@+id/campo_ciudad"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Ciudad"
+            android:inputType="text"
+            android:singleLine="true" />
+    </android.support.design.widget.TextInputLayout>
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/listView" />
 
 </LinearLayout>

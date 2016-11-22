@@ -66,15 +66,6 @@ public class MainActivity extends AppCompatActivity implements   GoogleApiClient
 
         mapWeatherFragment = MapWeatherFragment.newInstance();
 
-
-
-// CARGAMOS EL FRAGMENT DONDE MOSTRAR EL TIEMPO Y EL MAPA DE LA LOCALIZACION
-        FragmentManager fragmentManager = getFragmentManager();
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.add(R.id.contenedor, buscarLugarFragment);
-        transaction.commit();
-
-
 //        lblLatitud = (TextView) findViewById(R.id.lblLatitud);
 //        lblLongitud = (TextView) findViewById(R.id.lblLongitud);
 //        btnActualizar = (ToggleButton) findViewById(R.id.btnActualizar);
@@ -218,6 +209,12 @@ public class MainActivity extends AppCompatActivity implements   GoogleApiClient
 
             buscarLugarFragment = BuscarLugarFragment.newInstance(lastLocation);
 
+            // CARGAMOS EL FRAGMENT DONDE MOSTRAR EL TIEMPO Y EL MAPA DE LA LOCALIZACION
+            FragmentManager fragmentManager = getFragmentManager();
+            FragmentTransaction transaction = fragmentManager.beginTransaction();
+            transaction.add(R.id.contenedor, buscarLugarFragment);
+            transaction.commit();
+
 //            mapWeatherFragment.updateUI(lastLocation);
 //            updateUI(lastLocation);
         }
@@ -319,4 +316,10 @@ public class MainActivity extends AppCompatActivity implements   GoogleApiClient
         AppIndex.AppIndexApi.end(apiClient, getIndexApiAction());
         apiClient.disconnect();
     }
+
+//    public void changeFragment(){
+//        if(){
+//
+//        }
+//    }
 }
