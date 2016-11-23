@@ -20,7 +20,7 @@ import java.util.List;
 public class AdapterBusquedaLugar extends ArrayAdapter<ObjInfoGeografica> {
     private Context ctx;
     private ArrayList<ObjInfoGeografica> items;
-    public BuscarLugarFragment mInstance;
+    public IShowWeather callback;
 
     public AdapterBusquedaLugar(Context context, int resource, ArrayList<ObjInfoGeografica> objects) {
         super(context, resource, objects);
@@ -45,7 +45,7 @@ public class AdapterBusquedaLugar extends ArrayAdapter<ObjInfoGeografica> {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         ObjInfoGeografica objInfoGeo = getItem(position);
 
         ViewHolder viewHolder;
@@ -55,7 +55,7 @@ public class AdapterBusquedaLugar extends ArrayAdapter<ObjInfoGeografica> {
             LayoutInflater inflater = LayoutInflater.from(getContext());
             convertView = inflater.inflate(R.layout.item_list_busqueda, parent, false);
             viewHolder.ciudad = (TextView) convertView.findViewById(R.id.txtCiudad);
-            viewHolder.pais = (TextView) convertView.findViewById(R.id.txtCiudad);
+            viewHolder.pais = (TextView) convertView.findViewById(R.id.txtPais);
             // Cache the viewHolder object inside the fresh view
             convertView.setTag(viewHolder);
         } else {
@@ -63,16 +63,16 @@ public class AdapterBusquedaLugar extends ArrayAdapter<ObjInfoGeografica> {
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
-        viewHolder.ciudad.setText(objInfoGeo.getCiudad()+", ");
+        viewHolder.ciudad.setText(objInfoGeo.getLugar()+", "+objInfoGeo.getCiudad());
         viewHolder.pais.setText(objInfoGeo.getPais());
 
 
-//        convertView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                mInstance.showWeatherPlace(getItem(position));
-//            }
-//        });
+        convertView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                callback.showWeatherPLaces(getItem(position));
+            }
+        });
 
         return convertView;
     }

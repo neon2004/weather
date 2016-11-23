@@ -1,15 +1,18 @@
 package com.weather.diegojesuscampos.weather;
 
 import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -23,9 +26,12 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -38,7 +44,7 @@ import java.util.Locale;
  * Use the {@link MapWeatherFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class MapWeatherFragment extends BaseVolleyFragment  implements OnMapReadyCallback {
+public class MapWeatherFragment extends BaseVolleyFragment  implements OnMapReadyCallback,IMoveMap {
     private GoogleMap mapa;
     private OnFragmentInteractionListener mListener;
     private VolleyS volley;
@@ -50,6 +56,8 @@ public class MapWeatherFragment extends BaseVolleyFragment  implements OnMapRead
     private String lat;
     private String lng;
     private String ciudad;
+    private AdapterInfoWeather adapter;
+    private ListView listView;
 
     public MapWeatherFragment() {
         // Required empty public constructor
@@ -64,7 +72,7 @@ public class MapWeatherFragment extends BaseVolleyFragment  implements OnMapRead
         args.putString(Constants.OESTE, objIngoGeo.getOeste());
         args.putString(Constants.LAT, objIngoGeo.getLat());
         args.putString(Constants.LONG, objIngoGeo.getLng());
-        args.putString(Constants.CIUDAD, objIngoGeo.getCiudad());
+        args.putString(Constants.CIUDAD, objIngoGeo.getLugar());
         fragment.setArguments(args);
         return fragment;
     }
@@ -99,8 +107,17 @@ public class MapWeatherFragment extends BaseVolleyFragment  implements OnMapRead
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_map_weather, container, false);
-        MapFragment mapFragment = (MapFragment) getFragmentManager() .findFragmentById(R.id.map);
+//        MapFragment mapFragment = (MapFragment) getFragmentManager() .findFragmentById(R.id.map);
+//        mapFragment.getMapAsync(this);
+
+        MapFragment mapFragment = new MapFragment();
+        FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
+        transaction.add(R.id.rl_map_container, mapFragment).commit();
         mapFragment.getMapAsync(this);
+
+        listView= (ListView) view.findViewById(R.id.listWeather);
+
+
 
         return view;
     }
@@ -129,6 +146,11 @@ public class MapWeatherFragment extends BaseVolleyFragment  implements OnMapRead
         mListener = null;
     }
 
+    @Override
+    public void moveMap(ObjWeather infoWeather) {
+//        updateUI(Location loc);
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -147,31 +169,34 @@ public class MapWeatherFragment extends BaseVolleyFragment  implements OnMapRead
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mapa = googleMap;
-
         mapa.getUiSettings().setMapToolbarEnabled(false);
-
+        updateUI();
     }
 
-    public void updateUI(Location loc) {
-        CameraUpdate camUpd1 = CameraUpdateFactory.newLatLngZoom(new LatLng(loc.getLatitude(), loc.getLongitude()), 15);
+    public void updateUI() {
+
+       double latitud = Double.parseDouble(lat);
+        double longuitud = Double.parseDouble(lng);
+
+        CameraUpdate camUpd1 = CameraUpdateFactory.newLatLngZoom(new LatLng(latitud, longuitud), 15);
         mapa.moveCamera(camUpd1);
 
-        Geocoder geocoder = new Geocoder(getActivity(), Locale.getDefault());
-
-        List<Address> addresses  = null;
-        try {
-            addresses = geocoder.getFromLocation(loc.getLatitude(),loc.getLongitude(), 1);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        String city = addresses.get(0).getLocality();
+//        Geocoder geocoder = new Geocoder(getActivity(), Locale.getDefault());
+//
+//        List<Address> addresses  = null;
+//        try {
+//            addresses = geocoder.getFromLocation(latitud,longuitud, 1);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//        String city = addresses.get(0).getLocality();
 //        String state = addresses.get(0).getAdminArea();
 //        String zip = addresses.get(0).getPostalCode();
 //        String country = addresses.get(0).getCountryName();
 
         mapa.addMarker(new MarkerOptions()
-                .position(new LatLng(loc.getLatitude(), loc.getLongitude()))
+                .position(new LatLng(latitud, longuitud))
                 .title(ciudad));
     }
 
@@ -188,15 +213,55 @@ public class MapWeatherFragment extends BaseVolleyFragment  implements OnMapRead
         JsonObjectRequest request = new JsonObjectRequest(url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject jsonObject) {
-//                label.setText(jsonObject.toString());
+                ArrayList<ObjWeather> items = parseJson(jsonObject);
+                adapter = new AdapterInfoWeather(getActivity().getApplicationContext(),R.layout.item_list_wether,items);
+                adapter.notifyDataSetChanged();
+                listView.setAdapter(adapter);
                 onConnectionFinished();
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
-                onConnectionFailed(volleyError.toString());
+                onConnectionFailed(
+                        volleyError.toString()
+                );
             }
         });
         addToQueue(request);
+    }
+
+
+    public ArrayList<ObjWeather> parseJson(JSONObject jsonObject){
+        // Variables locales
+        ArrayList<ObjWeather> arrayObjWeather = new ArrayList();
+        JSONArray jsonArray= null;
+
+        try {
+            // Obtener el array del objeto
+            jsonArray = jsonObject.getJSONArray("weatherObservations");
+
+            for(int i=0; i<jsonArray.length(); i++){
+
+                try {
+                    JSONObject objeto= jsonArray.getJSONObject(i);
+
+
+                    ObjWeather obj = new ObjWeather(objeto.getString("lng"),
+                            objeto.getString("lat"),
+                            objeto.getString("temperature"), objeto.getString("humidity"),
+                            objeto.getString("stationName"), objeto.getString("weatherCondition"));
+
+                    arrayObjWeather.add(obj);
+
+                } catch (JSONException e) {
+                    Log.e("ERROR", "Error de parsing: "+ e.getMessage());
+                }
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return arrayObjWeather;
     }
 }

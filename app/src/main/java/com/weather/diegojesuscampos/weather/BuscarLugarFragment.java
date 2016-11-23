@@ -6,8 +6,10 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -27,17 +29,20 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
 
-public class BuscarLugarFragment extends BaseVolleyFragment {
+public class BuscarLugarFragment extends BaseVolleyFragment implements IShowWeather {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 
     private TextInputLayout tilCiudad;
+    private TextInputEditText etCiudad;
     private AdapterBusquedaLugar adapter;
 
     private static BuscarLugarFragment mInstance;
@@ -93,21 +98,10 @@ public class BuscarLugarFragment extends BaseVolleyFragment {
             }
 
             ciudad = addresses.get(0).getLocality();
-            tilCiudad.getEditText().setText(ciudad);
-            validarNombre(tilCiudad.getEditText().getText().toString());
+
         }
 
-        tilCiudad.setOnKeyListener(new View.OnKeyListener() {
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                // If the event is a key-down event on the "enter" button
-                if ((event.getAction() == KeyEvent.ACTION_DOWN) &&   (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    // Perform action on key press
-                    validarNombre(tilCiudad.getEditText().getText().toString());
-                    return true;
-                }
-                return false;
-            }
-        });
+
     }
 
     @Override
@@ -117,9 +111,26 @@ public class BuscarLugarFragment extends BaseVolleyFragment {
         View view = inflater.inflate(R.layout.fragment_buscar_lugar, container, false);
 
         tilCiudad = (TextInputLayout) view.findViewById(R.id.til_ciudad);
+        etCiudad = (TextInputEditText) view.findViewById(R.id.value_ciudad);
         listView= (ListView) view.findViewById(R.id.listView);
 
+        if(ciudad != null && !ciudad.isEmpty()){
+            tilCiudad.getEditText().setText(ciudad);
+            validarCiudad(etCiudad.getText().toString());
+        }
 
+
+        etCiudad.setOnKeyListener(new View.OnKeyListener() {
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                // If the event is a key-down event on the "enter" button
+                if ((event.getAction() == KeyEvent.ACTION_DOWN) &&   (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                    // Perform action on key press
+                    validarCiudad(etCiudad.getText().toString());
+                    return true;
+                }
+                return false;
+            }
+        });
 
         return view;
     }
@@ -148,6 +159,12 @@ public class BuscarLugarFragment extends BaseVolleyFragment {
         mListener = null;
     }
 
+    @Override
+    public void showWeatherPLaces(ObjInfoGeografica infoPlace) {
+        MainActivity act = (MainActivity) getActivity();
+        act.changeFragment(infoPlace);
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -174,35 +191,29 @@ public class BuscarLugarFragment extends BaseVolleyFragment {
 //                label.setText(jsonObject.toString());
                 ArrayList<ObjInfoGeografica> items = parseJson(jsonObject);
                 adapter = new AdapterBusquedaLugar(getActivity().getApplicationContext(),R.layout.item_list_busqueda,items);
-                adapter.mInstance = mInstance;
+                adapter.callback = BuscarLugarFragment.this;
+                adapter.notifyDataSetChanged();
                 listView.setAdapter(adapter);
 
-                listView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                    @Override
-                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
-                    }
-
-                    @Override
-                    public void onNothingSelected(AdapterView<?> parent) {
-
-                    }
-                });
                 onConnectionFinished();
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
-                onConnectionFailed(volleyError.toString());
+                onConnectionFailed(
+                        volleyError.toString());
             }
         });
         addToQueue(request);
     }
 
-    private void validarNombre(String nombre){
+    private void validarCiudad(String nombre){
         Pattern patron = Pattern.compile("^[a-zA-Z ]+$");
-        if( patron.matcher(nombre).matches() || nombre.length() > 5){
+        if( patron.matcher(nombre).matches() && !TextUtils.isEmpty(nombre)){
             makeRequest();
+            tilCiudad.setError(null);
+        }else{
+            tilCiudad.setError("Es necesario introducir un lugar");
         }
     }
 
@@ -225,7 +236,7 @@ public class BuscarLugarFragment extends BaseVolleyFragment {
                             puntosCardenale.getString("north"),
                             puntosCardenale.getString("south"), puntosCardenale.getString("east"),
                             puntosCardenale.getString("west"), objeto.getString("lat"),
-                            objeto.getString("lng") , objeto.getString("countryName"));
+                            objeto.getString("lng") , objeto.getString("countryName"), objeto.getString("adminName2"));
 
                     arrayObjInfGeo.add(obj);
 
@@ -241,7 +252,4 @@ public class BuscarLugarFragment extends BaseVolleyFragment {
         return arrayObjInfGeo;
     }
 
-    public void showWeatherPlace(){
-
-    }
 }

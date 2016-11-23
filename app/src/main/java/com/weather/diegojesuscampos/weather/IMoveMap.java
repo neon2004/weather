@@ -5,5 +5,5 @@ package com.weather.diegojesuscampos.weather;
  */
 
 public interface IMoveMap {
-    void showWeatherPLaces(ObjInfoGeografica infoPlace);
+    void moveMap(ObjWeather infoWeather);
 }

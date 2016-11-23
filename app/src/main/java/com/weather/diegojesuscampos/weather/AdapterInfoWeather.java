@@ -10,12 +10,11 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 
-public class AdapterInfoWeather extends ArrayAdapter<ObjInfoGeografica> {
+public class AdapterInfoWeather extends ArrayAdapter<ObjWeather> {
     private Context ctx;
-    private ArrayList<ObjInfoGeografica> items;
-    public IShowWeather callback;
+    private ArrayList<ObjWeather> items;
 
-    public AdapterInfoWeather(Context context, int resource, ArrayList<ObjInfoGeografica> objects) {
+    public AdapterInfoWeather(Context context, int resource, ArrayList<ObjWeather> objects) {
         super(context, resource, objects);
         this.items = objects;
         this.ctx = context;
@@ -28,7 +27,7 @@ public class AdapterInfoWeather extends ArrayAdapter<ObjInfoGeografica> {
     }
 
     @Override
-    public ObjInfoGeografica getItem(int position) {
+    public ObjWeather getItem(int position) {
         return items.get(position);
     }
 
@@ -39,7 +38,7 @@ public class AdapterInfoWeather extends ArrayAdapter<ObjInfoGeografica> {
 
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
-        ObjInfoGeografica objInfoGeo = getItem(position);
+        ObjWeather objWeather = getItem(position);
 
         ViewHolder viewHolder;
         if (convertView == null) {
@@ -47,8 +46,10 @@ public class AdapterInfoWeather extends ArrayAdapter<ObjInfoGeografica> {
             viewHolder = new ViewHolder();
             LayoutInflater inflater = LayoutInflater.from(getContext());
             convertView = inflater.inflate(R.layout.item_list_busqueda, parent, false);
-            viewHolder.ciudad = (TextView) convertView.findViewById(R.id.txtCiudad);
-            viewHolder.pais = (TextView) convertView.findViewById(R.id.txtPais);
+            viewHolder.estacion = (TextView) convertView.findViewById(R.id.txtCiudad);
+            viewHolder.condicion = (TextView) convertView.findViewById(R.id.txtPais);
+            viewHolder.temperatura = (TextView) convertView.findViewById(R.id.txtCiudad);
+            viewHolder.humedad = (TextView) convertView.findViewById(R.id.txtPais);
             // Cache the viewHolder object inside the fresh view
             convertView.setTag(viewHolder);
         } else {
@@ -56,24 +57,19 @@ public class AdapterInfoWeather extends ArrayAdapter<ObjInfoGeografica> {
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
-        viewHolder.ciudad.setText(objInfoGeo.getLugar()+", "+objInfoGeo.getCiudad());
-        viewHolder.pais.setText(objInfoGeo.getPais());
-
-
-        convertView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                callback.showWeatherPLaces(getItem(position));
-            }
-        });
+        viewHolder.estacion.setText(objWeather.getStationName());
+        viewHolder.condicion.setText(objWeather.getWeatherCondition());
+        viewHolder.temperatura.setText(objWeather.getTemperature());
+        viewHolder.humedad.setText(objWeather.getHumidity());
 
         return convertView;
     }
 
     static class ViewHolder
     {
-        TextView ciudad;
-        TextView pais;
-
+        TextView estacion;
+        TextView condicion;
+        TextView temperatura;
+        TextView humedad;
     }
 }

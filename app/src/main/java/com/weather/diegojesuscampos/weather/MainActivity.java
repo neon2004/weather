@@ -1,6 +1,7 @@
 package com.weather.diegojesuscampos.weather;
 
 import android.Manifest;
+import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.pm.PackageManager;
@@ -55,6 +56,8 @@ public class MainActivity extends AppCompatActivity implements   GoogleApiClient
     private VolleyS volley;
     private MapWeatherFragment mapWeatherFragment;
     private BuscarLugarFragment buscarLugarFragment;
+    public static Fragment FRAGMENT_ACT = null;
+
 
 
     @Override
@@ -65,6 +68,8 @@ public class MainActivity extends AppCompatActivity implements   GoogleApiClient
         setSupportActionBar(toolbar);
 
         mapWeatherFragment = MapWeatherFragment.newInstance();
+        buscarLugarFragment = BuscarLugarFragment.newInstance();
+
 
 //        lblLatitud = (TextView) findViewById(R.id.lblLatitud);
 //        lblLongitud = (TextView) findViewById(R.id.lblLongitud);
@@ -208,7 +213,7 @@ public class MainActivity extends AppCompatActivity implements   GoogleApiClient
                     LocationServices.FusedLocationApi.getLastLocation(apiClient);
 
             buscarLugarFragment = BuscarLugarFragment.newInstance(lastLocation);
-
+            FRAGMENT_ACT = buscarLugarFragment;
             // CARGAMOS EL FRAGMENT DONDE MOSTRAR EL TIEMPO Y EL MAPA DE LA LOCALIZACION
             FragmentManager fragmentManager = getFragmentManager();
             FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -240,8 +245,13 @@ public class MainActivity extends AppCompatActivity implements   GoogleApiClient
                 @SuppressWarnings("MissingPermission")
                 Location lastLocation =
                         LocationServices.FusedLocationApi.getLastLocation(apiClient);
-                mapWeatherFragment.updateUI(lastLocation);
-//                updateUI(lastLocation);
+                buscarLugarFragment = BuscarLugarFragment.newInstance(lastLocation);
+                FRAGMENT_ACT = buscarLugarFragment;
+                // CARGAMOS EL FRAGMENT DONDE MOSTRAR EL TIEMPO Y EL MAPA DE LA LOCALIZACION
+                FragmentManager fragmentManager = getFragmentManager();
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                transaction.add(R.id.contenedor, buscarLugarFragment);
+                transaction.commit();
 
             } else {
                 //Permiso denegado:
@@ -274,9 +284,13 @@ public class MainActivity extends AppCompatActivity implements   GoogleApiClient
 
         Log.i(LOGTAG, "Recibida nueva ubicación!");
 
-        mapWeatherFragment.updateUI(location);
-        //Mostramos la nueva ubicación recibida
-//        updateUI(location);
+        buscarLugarFragment = BuscarLugarFragment.newInstance(location);
+        FRAGMENT_ACT = buscarLugarFragment;
+        // CARGAMOS EL FRAGMENT DONDE MOSTRAR EL TIEMPO Y EL MAPA DE LA LOCALIZACION
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.add(R.id.contenedor, buscarLugarFragment);
+        transaction.commit();
     }
 
 
@@ -317,9 +331,21 @@ public class MainActivity extends AppCompatActivity implements   GoogleApiClient
         apiClient.disconnect();
     }
 
-//    public void changeFragment(){
-//        if(){
-//
-//        }
-//    }
+    // CAMBIAMOS EL FRAGMENT A MOSTRAR
+    public void changeFragment(ObjInfoGeografica infoPlace){
+        if(FRAGMENT_ACT != null && FRAGMENT_ACT instanceof BuscarLugarFragment){
+            mapWeatherFragment = MapWeatherFragment.newInstance(infoPlace);
+            FRAGMENT_ACT = mapWeatherFragment;
+            FragmentTransaction transaction = getFragmentManager().beginTransaction();
+            transaction.replace(R.id.contenedor, mapWeatherFragment);
+            transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+            transaction.commit();
+        }else{
+            FRAGMENT_ACT = buscarLugarFragment;
+            FragmentTransaction transaction = getFragmentManager().beginTransaction();
+            transaction.replace(R.id.contenedor, buscarLugarFragment);
+            transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+            transaction.commit();
+        }
+    }
 }

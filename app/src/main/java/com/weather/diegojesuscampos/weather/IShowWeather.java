@@ -5,4 +5,5 @@ package com.weather.diegojesuscampos.weather;
  */
 
 public interface IShowWeather {
+    void showWeatherPLaces(ObjInfoGeografica infoPlace);
 }

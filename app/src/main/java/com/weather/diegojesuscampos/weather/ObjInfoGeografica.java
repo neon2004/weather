@@ -13,9 +13,10 @@ public class ObjInfoGeografica {
     private String lng;
     private String lat;
     private String pais;
+    private String lugar;
 
-    public ObjInfoGeografica(String ciudad, String norte, String sur, String este, String oeste, String lng, String lat, String pais) {
-        this.ciudad = ciudad;
+    public ObjInfoGeografica(String lugar, String norte, String sur, String este, String oeste, String lng, String lat, String pais,String ciudad) {
+        this.lugar = lugar;
         this.norte = norte;
         this.sur = sur;
         this.este = este;
@@ -23,6 +24,7 @@ public class ObjInfoGeografica {
         this.lng = lng;
         this.lat = lat;
         this.pais = pais;
+        this.ciudad = ciudad;
     }
 
     public String getLat() {
@@ -87,5 +89,13 @@ public class ObjInfoGeografica {
 
     public void setPais(String pais) {
         this.pais = pais;
+    }
+
+    public String getLugar() {
+        return lugar;
+    }
+
+    public void setLugar(String lugar) {
+        this.lugar = lugar;
     }
 }
