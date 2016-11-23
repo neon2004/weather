@@ -82,14 +82,14 @@ public class MainActivity extends AppCompatActivity implements   GoogleApiClient
 //        });
 
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+//            }
+//        });
 
 
         // ATTENTION: This "addApi(AppIndex.API)"was auto-generated to implement the App Indexing API.
@@ -220,8 +220,6 @@ public class MainActivity extends AppCompatActivity implements   GoogleApiClient
             transaction.add(R.id.contenedor, buscarLugarFragment);
             transaction.commit();
 
-//            mapWeatherFragment.updateUI(lastLocation);
-//            updateUI(lastLocation);
         }
     }
 

@@ -3,9 +3,6 @@ package com.weather.diegojesuscampos.weather;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.Context;
-import android.location.Address;
-import android.location.Geocoder;
-import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -23,17 +20,16 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.weather.diegojesuscampos.weather.Util.Constants;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 
 
 /**
@@ -148,7 +144,7 @@ public class MapWeatherFragment extends BaseVolleyFragment  implements OnMapRead
 
     @Override
     public void moveMap(ObjWeather infoWeather) {
-//        updateUI(Location loc);
+        updateUI(infoWeather);
     }
 
     /**
@@ -173,33 +169,50 @@ public class MapWeatherFragment extends BaseVolleyFragment  implements OnMapRead
         updateUI();
     }
 
-    public void updateUI() {
+    private void updateUI(ObjWeather infoWeather) {
+        ActualizarMapa(infoWeather);
 
-       double latitud = Double.parseDouble(lat);
-        double longuitud = Double.parseDouble(lng);
 
-        CameraUpdate camUpd1 = CameraUpdateFactory.newLatLngZoom(new LatLng(latitud, longuitud), 15);
-        mapa.moveCamera(camUpd1);
-
-//        Geocoder geocoder = new Geocoder(getActivity(), Locale.getDefault());
-//
-//        List<Address> addresses  = null;
-//        try {
-//            addresses = geocoder.getFromLocation(latitud,longuitud, 1);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//
-//        String city = addresses.get(0).getLocality();
-//        String state = addresses.get(0).getAdminArea();
-//        String zip = addresses.get(0).getPostalCode();
-//        String country = addresses.get(0).getCountryName();
-
-        mapa.addMarker(new MarkerOptions()
-                .position(new LatLng(latitud, longuitud))
-                .title(ciudad));
     }
 
+    private void updateUI() {
+        ActualizarMapa(null);
+
+    }
+
+    private void ActualizarMapa(ObjWeather infoWeather){
+        double latitud = 0;
+        double longuitud = 0;
+        if(infoWeather != null) {
+             latitud = Double.parseDouble(infoWeather.getLat());
+             longuitud = Double.parseDouble(infoWeather.getLng());
+
+            mapa.addMarker(new MarkerOptions()
+                    .position(new LatLng(latitud, longuitud))
+                    .title(infoWeather.getStationName())
+                    .snippet(getString(R.string.temp)+infoWeather.getTemperature()+"º"));
+        }else{
+             latitud = Double.parseDouble(lat);
+             longuitud = Double.parseDouble(lng);
+        }
+
+        CameraUpdate camUpd1 = CameraUpdateFactory.newLatLngZoom(new LatLng(latitud, longuitud), 12);
+        mapa.moveCamera(camUpd1);
+
+        mapa.addMarker(new MarkerOptions()
+                .position(new LatLng(Double.parseDouble(lat), Double.parseDouble(lng)))
+                .title(ciudad)
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+
+
+
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+    }
 
     private void makeRequest(){
         String url = Constants.URL_WEATHER;
@@ -210,12 +223,15 @@ public class MapWeatherFragment extends BaseVolleyFragment  implements OnMapRead
         url = url.replace(Constants.URLOESTE,oeste);
         url = url.replace(Constants.URLUSERNAME,Constants.USERNAME1);
 
+        url = "http://api.geonames.org/weatherJSON?north=40.65072578667785&south=40.18227840162254&east=-3.3938449928832797&west=-4.011283486120621&username=ilgeonamessample";
+
         JsonObjectRequest request = new JsonObjectRequest(url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject jsonObject) {
                 ArrayList<ObjWeather> items = parseJson(jsonObject);
                 adapter = new AdapterInfoWeather(getActivity().getApplicationContext(),R.layout.item_list_wether,items);
                 adapter.notifyDataSetChanged();
+                adapter.callback = MapWeatherFragment.this;
                 listView.setAdapter(adapter);
                 onConnectionFinished();
             }
