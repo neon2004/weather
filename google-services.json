@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "125586202117",
+    "firebase_url": "https://pruebaweather-150222.firebaseio.com",
+    "project_id": "pruebaweather-150222",
+    "storage_bucket": "pruebaweather-150222.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:125586202117:android:e6bca414a68abae4",
+        "android_client_info": {
+          "package_name": "com.weather.diegojesuscampos.weather"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "125586202117-1atikuon9nmc2hdtjrqd0t0nj0dnpjtt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.weather.diegojesuscampos.weather",
+            "certificate_hash": "219C73FA33F3EDF162C359691E50AD7E28CFA23A"
+          }
+        },
+        {
+          "client_id": "125586202117-o6qecadodioaple0120mntrifpppedq7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANhm_EJnXVJOff41T4ybFYAhCJvhruwQM"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "125586202117-o6qecadodioaple0120mntrifpppedq7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
