@@ -1,14 +1,15 @@
 <resources>
     <string name="app_name">Weather</string>
-    <string name="action_settings">Settings</string>
     <string name="latitud">Latitud:</string>
     <string name="longitud">Longitud:</string>
     <string name="parar_actualizaciones">Parar Actualizaciones</string>
     <string name="iniciar_actualizaciones">Iniciar Actualizaciones</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="estacion">Estación:</string>
     <string name="temp">Temperatura:</string>
     <string name="humedad">Humedad</string>
+
+    <string name="buscarZonas">Nueva Busqueda</string>
+    <string name="zonasAnteriores">Zonas buscadas</string>
 </resources>

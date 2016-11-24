@@ -1,4 +1,4 @@
-package com.weather.diegojesuscampos.weather;
+package com.weather.diegojesuscampos.weather.Controller;
 
 
 import android.app.Fragment;
@@ -8,6 +8,7 @@ import android.widget.Toast;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.weather.diegojesuscampos.weather.Util.VolleyS;
 
 /**
  * Created by Diego Jesus Campos on 22/11/2016.

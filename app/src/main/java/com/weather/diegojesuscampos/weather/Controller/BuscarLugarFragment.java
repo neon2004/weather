@@ -1,4 +1,4 @@
-package com.weather.diegojesuscampos.weather;
+package com.weather.diegojesuscampos.weather.Controller;
 
 import android.content.Context;
 import android.location.Address;
@@ -8,32 +8,39 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
-import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
-import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
+import com.weather.diegojesuscampos.weather.Adapter.AdapterBusquedaLugar;
+import com.weather.diegojesuscampos.weather.Interfaces.IShowWeather;
+import com.weather.diegojesuscampos.weather.Datos.ObjInfoGeografica;
+import com.weather.diegojesuscampos.weather.R;
+import com.weather.diegojesuscampos.weather.Util.Constants;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 
@@ -50,12 +57,11 @@ public class BuscarLugarFragment extends BaseVolleyFragment implements IShowWeat
     private ListView listView;
     private String ciudad;
 
-
-    // TODO: Rename and change types of parameters
     private Double lat;
     private Double lng;
+    private DatabaseReference mDatabase;
+    ArrayList<ObjInfoGeografica> items;
 
-    private OnFragmentInteractionListener mListener;
 
     public BuscarLugarFragment() {
         // Required empty public constructor
@@ -131,54 +137,49 @@ public class BuscarLugarFragment extends BaseVolleyFragment implements IShowWeat
                 return false;
             }
         });
+        
+        //REFERENCIA A LA BD
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+
+        items = new ArrayList<ObjInfoGeografica>();
+        adapter = new AdapterBusquedaLugar(getActivity().getApplicationContext(),R.layout.item_list_busqueda,items);
+        adapter.callback = BuscarLugarFragment.this;
+        listView.setAdapter(adapter);
 
         return view;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
 
     @Override
     public void showWeatherPLaces(ObjInfoGeografica infoPlace) {
+
+        almacenarZona(infoPlace);
         MainActivity act = (MainActivity) getActivity();
-        act.changeFragment(infoPlace);
+        act.changeFragment(infoPlace,"Weather");
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
+    private void almacenarZona(ObjInfoGeografica infoPlace) {
+        String key = mDatabase.child("Zona").push().getKey();
+        infoPlace.setId(key);
+        Map<String, Object> postValues = infoPlace.toMap();
+
+        Map<String, Object> childUpdates = new HashMap<>();
+        childUpdates.put("/Zonas/" + key, infoPlace);
+
+        mDatabase.updateChildren(childUpdates, new DatabaseReference.CompletionListener() {
+            @Override
+            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                if(databaseError == null){
+                    Toast.makeText(getActivity(),"DATOS GUARDADOS",Toast.LENGTH_LONG).show();
+                }else{
+                    Toast.makeText(getActivity(),"ERROR AL GUARDAR DATOS ",Toast.LENGTH_LONG).show();
+
+                }
+            }
+        });
     }
+
+
 
     private void makeRequest(){
         String url = Constants.URL_INFO_GEOGRAFICA;
@@ -189,11 +190,10 @@ public class BuscarLugarFragment extends BaseVolleyFragment implements IShowWeat
             @Override
             public void onResponse(JSONObject jsonObject) {
 //                label.setText(jsonObject.toString());
-                ArrayList<ObjInfoGeografica> items = parseJson(jsonObject);
-                adapter = new AdapterBusquedaLugar(getActivity().getApplicationContext(),R.layout.item_list_busqueda,items);
-                adapter.callback = BuscarLugarFragment.this;
-                adapter.notifyDataSetChanged();
-                listView.setAdapter(adapter);
+                items = parseJson(jsonObject);
+                adapter.clear();//                adapter = new AdapterBusquedaLugar(getActivity().getApplicationContext(),R.layout.item_list_busqueda,items);
+                adapter. updateObjInfoGeograficaList(items);
+//                adapter.notifyDataSetChanged();
 
                 onConnectionFinished();
             }
@@ -232,7 +232,7 @@ public class BuscarLugarFragment extends BaseVolleyFragment implements IShowWeat
                     JSONObject objeto= jsonArray.getJSONObject(i);
                     JSONObject puntosCardenale = objeto.getJSONObject("bbox");
 
-                    ObjInfoGeografica obj = new ObjInfoGeografica(objeto.getString("toponymName"),
+                    ObjInfoGeografica obj = new ObjInfoGeografica(i+"",objeto.getString("toponymName"),
                             puntosCardenale.getString("north"),
                             puntosCardenale.getString("south"), puntosCardenale.getString("east"),
                             puntosCardenale.getString("west"), objeto.getString("lat"),
@@ -251,5 +251,6 @@ public class BuscarLugarFragment extends BaseVolleyFragment implements IShowWeat
 
         return arrayObjInfGeo;
     }
+
 
 }

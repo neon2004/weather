@@ -1,4 +1,7 @@
-package com.weather.diegojesuscampos.weather;
+package com.weather.diegojesuscampos.weather.Datos;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Diego Jesus Campos on 22/11/2016.
@@ -14,8 +17,12 @@ public class ObjInfoGeografica {
     private String lat;
     private String pais;
     private String lugar;
+    private String id;
 
-    public ObjInfoGeografica(String lugar, String norte, String sur, String este, String oeste, String lng, String lat, String pais,String ciudad) {
+    public ObjInfoGeografica(){}
+
+    public ObjInfoGeografica(String id, String lugar, String norte, String sur, String este, String oeste, String lng, String lat, String pais, String ciudad) {
+        this.lugar = id;
         this.lugar = lugar;
         this.norte = norte;
         this.sur = sur;
@@ -25,6 +32,25 @@ public class ObjInfoGeografica {
         this.lat = lat;
         this.pais = pais;
         this.ciudad = ciudad;
+    }
+
+
+
+    public Map<String, Object> toMap() {
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("lugar", getId());
+        result.put("lugar", getLugar());
+        result.put("ciudad", getCiudad());
+        result.put("pais", getPais());
+        result.put("lat", getLat());
+        result.put("lng", getLng());
+        result.put("norte", getNorte());
+        result.put("sur", getSur());
+        result.put("este", getEste());
+        result.put("oeste", getOeste());
+
+
+        return result;
     }
 
     public String getLat() {
@@ -98,4 +124,13 @@ public class ObjInfoGeografica {
     public void setLugar(String lugar) {
         this.lugar = lugar;
     }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
 }

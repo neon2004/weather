@@ -1,4 +1,4 @@
-package com.weather.diegojesuscampos.weather;
+package com.weather.diegojesuscampos.weather.Controller;
 
 import android.app.Fragment;
 import android.app.FragmentTransaction;
@@ -23,7 +23,13 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.weather.diegojesuscampos.weather.Adapter.AdapterInfoWeather;
+import com.weather.diegojesuscampos.weather.Interfaces.IMoveMap;
+import com.weather.diegojesuscampos.weather.Datos.ObjInfoGeografica;
+import com.weather.diegojesuscampos.weather.Datos.ObjWeather;
+import com.weather.diegojesuscampos.weather.R;
 import com.weather.diegojesuscampos.weather.Util.Constants;
+import com.weather.diegojesuscampos.weather.Util.VolleyS;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -223,7 +229,7 @@ public class MapWeatherFragment extends BaseVolleyFragment  implements OnMapRead
         url = url.replace(Constants.URLOESTE,oeste);
         url = url.replace(Constants.URLUSERNAME,Constants.USERNAME1);
 
-        url = "http://api.geonames.org/weatherJSON?north=40.65072578667785&south=40.18227840162254&east=-3.3938449928832797&west=-4.011283486120621&username=ilgeonamessample";
+//        url = "http://api.geonames.org/weatherJSON?north=40.65072578667785&south=40.18227840162254&east=-3.3938449928832797&west=-4.011283486120621&username=ilgeonamessample";
 
         JsonObjectRequest request = new JsonObjectRequest(url, null, new Response.Listener<JSONObject>() {
             @Override

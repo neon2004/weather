@@ -1,4 +1,4 @@
-package com.weather.diegojesuscampos.weather;
+package com.weather.diegojesuscampos.weather.Datos;
 
 /**
  * Created by Diego Jesus Campos on 22/11/2016.

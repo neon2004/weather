@@ -1,4 +1,4 @@
-package com.weather.diegojesuscampos.weather;
+package com.weather.diegojesuscampos.weather.Util;
 
 import android.content.Context;
 

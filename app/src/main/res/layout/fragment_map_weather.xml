@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.weather.diegojesuscampos.weather.MapWeatherFragment"
+    tools:context="com.weather.diegojesuscampos.weather.Controller.MapWeatherFragment"
     android:background="@color/colorAmarilloClaro">
 
     <LinearLayout
@@ -34,7 +34,8 @@
             android:layout_height="match_parent"
             android:id="@+id/listWeather"
             android:headerDividersEnabled="true"
-            android:choiceMode="singleChoice" />
+            android:choiceMode="singleChoice"
+           />
     </LinearLayout>
 </LinearLayout>
 

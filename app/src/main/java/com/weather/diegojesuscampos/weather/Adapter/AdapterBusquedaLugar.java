@@ -1,20 +1,17 @@
-package com.weather.diegojesuscampos.weather;
+package com.weather.diegojesuscampos.weather.Adapter;
 
-import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import com.android.volley.Response;
-
-import org.json.JSONObject;
+import com.weather.diegojesuscampos.weather.Interfaces.IShowWeather;
+import com.weather.diegojesuscampos.weather.Datos.ObjInfoGeografica;
+import com.weather.diegojesuscampos.weather.R;
 
 import java.util.ArrayList;
-import java.util.List;
 
 
 public class AdapterBusquedaLugar extends ArrayAdapter<ObjInfoGeografica> {
@@ -26,6 +23,12 @@ public class AdapterBusquedaLugar extends ArrayAdapter<ObjInfoGeografica> {
         super(context, resource, objects);
         this.items = objects;
         this.ctx = context;
+    }
+
+    public void updateObjInfoGeograficaList(ArrayList<ObjInfoGeografica> newlist) {
+        items.clear();
+        items.addAll(newlist);
+        this.notifyDataSetChanged();
     }
 
 

@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "125586202117-bq4uih3cv8k3v3d121b7rp90qnv7imah.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.weather.diegojesuscampos.weather",
+            "certificate_hash": "E8FC2C6BD624261739D92DCB2F092D3BA04EB75F"
+          }
+        },
+        {
           "client_id": "125586202117-1atikuon9nmc2hdtjrqd0t0nj0dnpjtt.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
