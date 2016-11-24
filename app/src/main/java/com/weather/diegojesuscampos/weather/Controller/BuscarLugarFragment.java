@@ -14,7 +14,9 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Response;
@@ -125,18 +127,29 @@ public class BuscarLugarFragment extends BaseVolleyFragment implements IShowWeat
             validarCiudad(etCiudad.getText().toString());
         }
 
-
-        etCiudad.setOnKeyListener(new View.OnKeyListener() {
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                // If the event is a key-down event on the "enter" button
-                if ((event.getAction() == KeyEvent.ACTION_DOWN) &&   (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    // Perform action on key press
+        etCiudad.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
                     validarCiudad(etCiudad.getText().toString());
                     return true;
                 }
                 return false;
             }
         });
+
+
+//        etCiudad.setOnKeyListener(new View.OnKeyListener() {
+//            public boolean onKey(View v, int keyCode, KeyEvent event) {
+//                // If the event is a key-down event on the "enter" button
+//                if ((event.getAction() == KeyEvent.ACTION_DOWN) &&   (keyCode == KeyEvent.KEYCODE_ENTER)) {
+//                    // Perform action on key press
+//                    validarCiudad(etCiudad.getText().toString());
+//                    return true;
+//                }
+//                return false;
+//            }
+//        });
         
         //REFERENCIA A LA BD
         mDatabase = FirebaseDatabase.getInstance().getReference();
@@ -210,6 +223,7 @@ public class BuscarLugarFragment extends BaseVolleyFragment implements IShowWeat
     private void validarCiudad(String nombre){
         Pattern patron = Pattern.compile("^[a-zA-Z ]+$");
         if( patron.matcher(nombre).matches() && !TextUtils.isEmpty(nombre)){
+            ciudad = nombre;
             makeRequest();
             tilCiudad.setError(null);
         }else{
