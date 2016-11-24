@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import com.weather.diegojesuscampos.weather.Datos.ObjInfoGeografica;
 import com.weather.diegojesuscampos.weather.Interfaces.IMoveMap;
 import com.weather.diegojesuscampos.weather.Datos.ObjWeather;
 import com.weather.diegojesuscampos.weather.R;
@@ -27,7 +28,11 @@ public class AdapterInfoWeather extends ArrayAdapter<ObjWeather> {
         this.ctx = context;
     }
 
-
+    public void updateObjInfoWeatherList(ArrayList<ObjWeather> newlist) {
+        items.clear();
+        items.addAll(newlist);
+        this.notifyDataSetChanged();
+    }
 
     @Override
     public int getCount() {
@@ -73,22 +78,14 @@ public class AdapterInfoWeather extends ArrayAdapter<ObjWeather> {
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                if(viewAnt == null){
-                    viewAnt = v;
-                }
-
-                if( !viewAnt.equals(v)){
-                    viewAnt = v;
-                    viewAnt.setBackgroundColor(Color.TRANSPARENT);
-                }
-                v.setBackgroundColor(Color.argb(60,63,81,181));
                 callback.moveMap(getItem(position));
             }
         });
 
         return convertView;
     }
+
+
 
     static class ViewHolder
     {

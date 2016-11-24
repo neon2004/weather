@@ -5,14 +5,19 @@
     <string name="parar_actualizaciones">Parar Actualizaciones</string>
     <string name="iniciar_actualizaciones">Iniciar Actualizaciones</string>
 
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="estacion">Estación:</string>
-    <string name="temp">Temperatura:</string>
+    <string name="condicion">Clima:</string>
+    <string name="temp">Temperatura</string>
     <string name="humedad">Humedad</string>
 
     <string name="buscarZonas">Nueva Busqueda</string>
     <string name="zonasAnteriores">Zonas buscadas</string>
-    <string name="guardadoOK">DATOS GUARDADOS CORRECTAMENTE</string>
-    <string name="guardadoKO">ERROR AL GUARDAR DATOS</string>
+    <string name="guardadoOK">ZONA GUARDADA CORRECTAMENTE</string>
+    <string name="guardadoKO">ERROR AL GUARDAR LA ZONA</string>
     <string name="zonaObligatorio">Campo obligatorio para realizar la busqueda</string>
+    <string name="errorDatos">ERROR OBTENIENDO DATOS</string>
+    <string name="noDatos">NO HAY DATOS</string>
+    <string name="noConexionGoogle">Se ha interrumpido la conexión con Google Play Services</string>
+    <string name="errorConexionGoogle">Error grave al conectar con Google Play Services</string>
+
 </resources>

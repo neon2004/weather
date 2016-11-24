@@ -3,6 +3,7 @@ package com.weather.diegojesuscampos.weather.Datos;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -30,7 +31,10 @@ public class ZonasViewHolder extends RecyclerView.ViewHolder implements View.OnC
         textViewCiudad = (TextView) itemView.findViewById(R.id.txtCiudad);
         textViewPais = (TextView) itemView.findViewById(R.id.txtPais);
         layout = (LinearLayout) itemView.findViewById(R.id.layoutBuscarZona);
+        ImageButton btnEliminar = (ImageButton) itemView.findViewById(R.id.btnEliminar);
+        btnEliminar.setVisibility(View.VISIBLE);
         layout.setOnClickListener(this);
+        btnEliminar.setOnClickListener(this);
 
     }
 
@@ -41,7 +45,7 @@ public class ZonasViewHolder extends RecyclerView.ViewHolder implements View.OnC
         }
 
         objInfoZona = objInfo;
-        textViewCiudad.setText(objInfo.getCiudad());
+        textViewCiudad.setText(objInfo.getLugar()+", "+objInfo.getCiudad());
         textViewPais.setText(objInfo.getPais());
     }
 
@@ -59,6 +63,9 @@ public class ZonasViewHolder extends RecyclerView.ViewHolder implements View.OnC
             switch (view.getId()) {
                 case R.id.layoutBuscarZona:
                     mListener.onItemClick(objInfoZona);
+                    break;
+                case R.id.btnEliminar:
+                    mListener.onDeleteClick(objInfoZona);
                     break;
                 default:
                     break;

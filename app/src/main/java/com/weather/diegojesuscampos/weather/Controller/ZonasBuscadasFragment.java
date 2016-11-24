@@ -20,8 +20,9 @@ import com.google.firebase.database.ValueEventListener;
 import com.weather.diegojesuscampos.weather.Adapter.AdapterListZonasBuscadas;
 import com.weather.diegojesuscampos.weather.Datos.ObjInfoGeografica;
 import com.weather.diegojesuscampos.weather.Datos.ZonasViewHolder;
+import com.weather.diegojesuscampos.weather.Interfaces.IMyViewHolderClickListener;
 import com.weather.diegojesuscampos.weather.R;
-
+import com.weather.diegojesuscampos.weather.Util.Constants;
 
 
 public class ZonasBuscadasFragment extends BaseVolleyFragment {
@@ -50,34 +51,23 @@ public class ZonasBuscadasFragment extends BaseVolleyFragment {
 
     private void crearRefeenciaBD() {
 
-        dbZonas = FirebaseDatabase.getInstance().getReference().child("Zonas");
+        dbZonas = FirebaseDatabase.getInstance().getReference().child(Constants.TAG_NOMBREBD);
 
         mAdapter = new AdapterListZonasBuscadas(getActivity(), ObjInfoGeografica.class, R.layout.item_list_busqueda, ZonasViewHolder.class, dbZonas);
-        mAdapter.setMyViewHolderClickListener(new ZonasViewHolder.MyViewHolderClickListener() {
+        mAdapter.setMyViewHolderClickListener(new IMyViewHolderClickListener() {
             @Override
             public void onItemClick(ObjInfoGeografica objInfo) {
                 MainActivity act = (MainActivity) getActivity();
-                act.changeFragment(objInfo,"Weather");
+                act.changeFragment(objInfo,Constants.TAG_VERCLIMA);
+            }
+
+            @Override
+            public void onDeleteClick(ObjInfoGeografica objInfo) {
+                dbZonas.child(objInfo.getId()).removeValue();
             }
         });
 
         recycler.setAdapter(mAdapter);
-
-
-
-//         mAdapter = new FirebaseRecyclerAdapter<ObjInfoGeografica, ZonasViewHolder>(
-//                ObjInfoGeografica.class, R.layout.item_list_busqueda, ZonasViewHolder.class, dbZonas) {
-//
-//            @Override
-//            public void populateViewHolder(ZonasViewHolder predViewHolder, ObjInfoGeografica pred, int position) {
-//                predViewHolder.setLugar(pred.getLugar());
-//                predViewHolder.setPais(pred.getPais());
-//            }
-//        };
-//
-//        recycler.setAdapter(mAdapter);
-
-
     }
 
     @Override

@@ -10,6 +10,10 @@ import org.json.JSONObject;
  * Constantes para escritura
  */
 public class Constants {
+
+    public static final int TAG_NUM_INTENTOS = 5;
+    public static final String TAG_NOMBREBD = "Zonas";
+
     public static final String URLPLACE = "%PLACE%";
     public static final String URLUSERNAME = "%USERNAME%";
     public static final String URLNORTE = "%NORTE%";
@@ -42,7 +46,7 @@ public class Constants {
     public static final String TAG_WEATHEROBSERVATION = "weatherObservations";
     public static final String TAG_TYPONAME = "toponymName";
     public static final String TAG_BBOX = "bbox";
-    public static final String TAG_LATITUD = "LAT";
+    public static final String TAG_LATITUD = "lat";
     public static final String TAG_TEMPERATURA = "temperature";
     public static final String TAG_HUMEDAD = "humidity";
     public static final String TAG_ESTACION = "stationName";
@@ -50,7 +54,7 @@ public class Constants {
 
     public static final String TAG_BUSCARZONA = "BuscarZona";
     public static final String TAG_ZONABUSCADA = "ZonaBuscada";
-
+    public static final String TAG_VERCLIMA = "Weather";
 
 }
 

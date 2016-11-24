@@ -6,6 +6,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.text.TextUtils;
@@ -63,6 +64,9 @@ public class BuscarLugarFragment extends BaseVolleyFragment implements IShowWeat
     private Double lng;
     private DatabaseReference mDatabase;
     ArrayList<ObjInfoGeografica> items;
+    private boolean errorDatos = false;
+    private int cont = 0;
+    private View view;
 
 
     public BuscarLugarFragment() {
@@ -108,15 +112,13 @@ public class BuscarLugarFragment extends BaseVolleyFragment implements IShowWeat
             ciudad = addresses.get(0).getLocality();
 
         }
-
-
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_buscar_lugar, container, false);
+        view = inflater.inflate(R.layout.fragment_buscar_lugar, container, false);
 
         tilCiudad = (TextInputLayout) view.findViewById(R.id.til_ciudad);
         etCiudad = (TextInputEditText) view.findViewById(R.id.value_ciudad);
@@ -153,19 +155,17 @@ public class BuscarLugarFragment extends BaseVolleyFragment implements IShowWeat
 
     @Override
     public void showWeatherPLaces(ObjInfoGeografica infoPlace) {
+            almacenarZona(infoPlace);
 
-        almacenarZona(infoPlace);
-        MainActivity act = (MainActivity) getActivity();
-        act.changeFragment(infoPlace,"Weather");
     }
 
-    private void almacenarZona(ObjInfoGeografica infoPlace) {
-        String key = mDatabase.child("Zona").push().getKey();
+    private void almacenarZona(final ObjInfoGeografica infoPlace) {
+        String key = mDatabase.child(Constants.TAG_NOMBREBD).push().getKey();
         infoPlace.setId(key);
         Map<String, Object> postValues = infoPlace.toMap();
 
         Map<String, Object> childUpdates = new HashMap<>();
-        childUpdates.put("/Zonas/" + key, infoPlace);
+        childUpdates.put("/"+Constants.TAG_NOMBREBD+"/" + key, infoPlace);
 
         mDatabase.updateChildren(childUpdates, new DatabaseReference.CompletionListener() {
             @Override
@@ -176,6 +176,9 @@ public class BuscarLugarFragment extends BaseVolleyFragment implements IShowWeat
                     Toast.makeText(getActivity(),getString(R.string.guardadoKO),Toast.LENGTH_LONG).show();
 
                 }
+
+                MainActivity act = (MainActivity) getActivity();
+                act.changeFragment(infoPlace, "Weather");
             }
         });
     }
@@ -185,18 +188,38 @@ public class BuscarLugarFragment extends BaseVolleyFragment implements IShowWeat
     private void makeRequest(){
         String url = Constants.URL_INFO_GEOGRAFICA;
         url = url.replace(Constants.URLPLACE,ciudad);
-        url = url.replace(Constants.URLUSERNAME,Constants.USERNAME1);
+        // SI NOS DA ERROR AL OBTENER DATOS, PROBAMOS CON EL OTRO USUARIO
 
+        if(!errorDatos || cont <= Constants.TAG_NUM_INTENTOS) {
+            if (cont % 2 == 0 ) {
+                url = url.replace(Constants.URLUSERNAME, Constants.USERNAME1);
+            } else {
+                url = url.replace(Constants.URLUSERNAME, Constants.USERNAME2);
+            }
+        }else{
+            Snackbar snackbar = Snackbar.make(view, getString(R.string.errorDatos), Snackbar.LENGTH_LONG);
+            snackbar.show();
+            return;
+        }
+
+        errorDatos = false;
         JsonObjectRequest request = new JsonObjectRequest(url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject jsonObject) {
-//                label.setText(jsonObject.toString());
                 items = parseJson(jsonObject);
-                adapter.clear();//                adapter = new AdapterBusquedaLugar(getActivity().getApplicationContext(),R.layout.item_list_busqueda,items);
+                adapter.clear();
                 adapter. updateObjInfoGeograficaList(items);
-//                adapter.notifyDataSetChanged();
 
                 onConnectionFinished();
+                if(!errorDatos){
+                    cont = 0;
+                    if(items.size() == 0){
+                        Snackbar snackbar = Snackbar.make(view, getString(R.string.noDatos), Snackbar.LENGTH_LONG);
+                        snackbar.show();
+                    }
+                }else{
+                    makeRequest();
+                }
             }
         }, new Response.ErrorListener() {
             @Override
@@ -206,6 +229,8 @@ public class BuscarLugarFragment extends BaseVolleyFragment implements IShowWeat
             }
         });
         addToQueue(request);
+
+
     }
 
     private void validarCiudad(String nombre){
@@ -219,6 +244,7 @@ public class BuscarLugarFragment extends BaseVolleyFragment implements IShowWeat
         }
     }
 
+    // PARSEAMOS LOS DATOS DEVUELTO POR EL WEBSERVICE
     public ArrayList<ObjInfoGeografica> parseJson(JSONObject jsonObject){
         // Variables locales
         ArrayList<ObjInfoGeografica> arrayObjInfGeo = new ArrayList();
@@ -227,6 +253,7 @@ public class BuscarLugarFragment extends BaseVolleyFragment implements IShowWeat
         try {
             // Obtener el array del objeto
             jsonArray = jsonObject.getJSONArray(Constants.TAG_GEONAMES);
+            Log.e("RESPESTA DATOS", jsonArray.toString());
 
             for(int i=0; i<jsonArray.length(); i++){
 
@@ -237,8 +264,8 @@ public class BuscarLugarFragment extends BaseVolleyFragment implements IShowWeat
                     ObjInfoGeografica obj = new ObjInfoGeografica(i+"",objeto.getString(Constants.TAG_TYPONAME),
                             puntosCardenale.getString(Constants.TAG_NORTE),
                             puntosCardenale.getString(Constants.TAG_SUR), puntosCardenale.getString(Constants.TAG_ESTE),
-                            puntosCardenale.getString(Constants.TAG_OESTE), objeto.getString("lat"),
-                            objeto.getString(Constants.TAG_LONGUITUD) , objeto.getString(Constants.TAG_COUNTRYNAME), objeto.getString(Constants.TAG_ADMINNAME2));
+                            puntosCardenale.getString(Constants.TAG_OESTE), objeto.getString(Constants.TAG_LONGUITUD),
+                            objeto.getString(Constants.TAG_LATITUD) , objeto.getString(Constants.TAG_COUNTRYNAME), objeto.getString(Constants.TAG_ADMINNAME2));
 
                     arrayObjInfGeo.add(obj);
 
@@ -248,6 +275,9 @@ public class BuscarLugarFragment extends BaseVolleyFragment implements IShowWeat
             }
 
         } catch (JSONException e) {
+            errorDatos = true;
+            cont++;
+
             e.printStackTrace();
         }
 

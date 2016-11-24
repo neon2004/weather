@@ -8,5 +8,6 @@ import com.weather.diegojesuscampos.weather.Datos.ObjInfoGeografica;
 
 public interface IMyViewHolderClickListener {
      void onItemClick(ObjInfoGeografica objInfo);
+     void onDeleteClick(ObjInfoGeografica objInfo);
 }
 

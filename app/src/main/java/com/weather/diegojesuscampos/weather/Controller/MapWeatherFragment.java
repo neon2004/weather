@@ -2,13 +2,20 @@ package com.weather.diegojesuscampos.weather.Controller;
 
 import android.app.FragmentTransaction;
 import android.content.Context;
+import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -28,6 +35,8 @@ import com.weather.diegojesuscampos.weather.Datos.ObjWeather;
 import com.weather.diegojesuscampos.weather.Interfaces.IMoveMap;
 import com.weather.diegojesuscampos.weather.R;
 import com.weather.diegojesuscampos.weather.Util.Constants;
+import com.weather.diegojesuscampos.weather.Util.VolleyS;
+import android.os.Handler;
 
 
 import org.json.JSONArray;
@@ -50,6 +59,14 @@ public class MapWeatherFragment extends BaseVolleyFragment  implements OnMapRead
     private String ciudad;
     private AdapterInfoWeather adapter;
     private ListView listView;
+    private ArrayList<ObjWeather> items;
+    private boolean errorDatos = false;
+    private int cont = 0;
+    private View view;
+
+    ProgressBar VerticalProgressBar;
+    int intValue = 0;
+    Handler handler = new Handler();
 
     public MapWeatherFragment() {
         // Required empty public constructor
@@ -90,17 +107,15 @@ public class MapWeatherFragment extends BaseVolleyFragment  implements OnMapRead
             ciudad = getArguments().getString(Constants.CIUDAD);
         }
 
+        // HACEMOS LA LLAMADA AL SERVICIO PARA OBTENER DATOS
         makeRequest();
-
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_map_weather, container, false);
-//        MapFragment mapFragment = (MapFragment) getFragmentManager() .findFragmentById(R.id.map);
-//        mapFragment.getMapAsync(this);
+        view = inflater.inflate(R.layout.fragment_map_weather, container, false);
 
         MapFragment mapFragment = new MapFragment();
         FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
@@ -109,7 +124,12 @@ public class MapWeatherFragment extends BaseVolleyFragment  implements OnMapRead
 
         listView= (ListView) view.findViewById(R.id.listWeather);
 
+        items = new ArrayList<ObjWeather> ();
+        adapter = new AdapterInfoWeather(getActivity().getApplicationContext(),R.layout.item_list_wether,items);
+        adapter.callback = MapWeatherFragment.this;
+        listView.setAdapter(adapter);
 
+        VerticalProgressBar = (ProgressBar)view.findViewById(R.id.barraTemp);
 
         return view;
     }
@@ -138,7 +158,9 @@ public class MapWeatherFragment extends BaseVolleyFragment  implements OnMapRead
 
     }
 
-    private void ActualizarMapa(ObjWeather infoWeather){
+    private void ActualizarMapa(final ObjWeather infoWeather){
+        VerticalProgressBar.setProgress(0);
+        intValue = 0;
         double latitud = 0;
         double longuitud = 0;
         if(infoWeather != null) {
@@ -163,6 +185,35 @@ public class MapWeatherFragment extends BaseVolleyFragment  implements OnMapRead
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
 
 
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+
+               int vTemp = infoWeather != null ? Integer.parseInt(infoWeather.getTemperature()) : 0;
+
+                while(intValue < vTemp)
+                {
+                    intValue++;
+
+                    handler.post(new Runnable() {
+
+                        @Override
+                        public void run() {
+
+                            VerticalProgressBar.setProgress(intValue);
+
+                        }
+                    });try {
+                    Thread.sleep(50);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                }
+            }
+        }).start();
+
+
 
     }
 
@@ -180,16 +231,35 @@ public class MapWeatherFragment extends BaseVolleyFragment  implements OnMapRead
         url = url.replace(Constants.URLESTE,este);
         url = url.replace(Constants.URLOESTE,oeste);
         url = url.replace(Constants.URLUSERNAME,Constants.USERNAME1);
+        if(!errorDatos || cont <= Constants.TAG_NUM_INTENTOS) {
+            if (cont % 2 == 0 ) {
+                url = url.replace(Constants.URLUSERNAME, Constants.USERNAME1);
+            } else {
+                url = url.replace(Constants.URLUSERNAME, Constants.USERNAME2);
+            }
+        }else{
+            Snackbar snackbar = Snackbar.make(view, getString(R.string.errorDatos), Snackbar.LENGTH_LONG);
+            snackbar.show();
+            return;
+        }
 
         JsonObjectRequest request = new JsonObjectRequest(url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject jsonObject) {
-                ArrayList<ObjWeather> items = parseJson(jsonObject);
-                adapter = new AdapterInfoWeather(getActivity().getApplicationContext(),R.layout.item_list_wether,items);
-                adapter.notifyDataSetChanged();
-                adapter.callback = MapWeatherFragment.this;
-                listView.setAdapter(adapter);
+                 items = parseJson(jsonObject);
+                adapter.clear();
+                adapter.updateObjInfoWeatherList(items);
                 onConnectionFinished();
+
+                if(!errorDatos){
+                    cont = 0;
+                    if(items.size() == 0){
+                        Snackbar snackbar = Snackbar.make(view, getString(R.string.noDatos), Snackbar.LENGTH_LONG);
+                        snackbar.show();
+                    }
+                }else{
+                    makeRequest();
+                }
             }
         }, new Response.ErrorListener() {
             @Override
@@ -207,7 +277,7 @@ public class MapWeatherFragment extends BaseVolleyFragment  implements OnMapRead
         // Variables locales
         ArrayList<ObjWeather> arrayObjWeather = new ArrayList();
         JSONArray jsonArray= null;
-
+        errorDatos = false;
         try {
             // Obtener el array del objeto
             jsonArray = jsonObject.getJSONArray(Constants.TAG_WEATHEROBSERVATION);
@@ -226,12 +296,16 @@ public class MapWeatherFragment extends BaseVolleyFragment  implements OnMapRead
                     arrayObjWeather.add(obj);
 
                 } catch (JSONException e) {
+                    errorDatos = true;
+                    cont++;
                     Log.e("ERROR PARSEO", "Error de parsing: "+ e.getMessage());
                 }
             }
 
         } catch (JSONException e) {
             e.printStackTrace();
+            errorDatos = true;
+            cont++;
         }
 
         return arrayObjWeather;

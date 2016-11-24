@@ -6,7 +6,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 
 /**
- * Created by Diego Jesus Campos on 22/11/2016.
+ * Created by Diego Jesus Campos on 24/11/2016.
  */
 public class VolleyS {
     private static VolleyS mVolleyS = null;
