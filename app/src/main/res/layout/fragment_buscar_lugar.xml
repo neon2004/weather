@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     tools:context="com.weather.diegojesuscampos.weather.Controller.BuscarLugarFragment"
    android:orientation="vertical"
-    android:background="@color/colorAmarilloClaro">
+    >
 
     <android.support.design.widget.TextInputLayout
         android:id="@+id/til_ciudad"

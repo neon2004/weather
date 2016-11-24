@@ -13,6 +13,7 @@ import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.database.Query;
 import com.weather.diegojesuscampos.weather.Datos.ObjInfoGeografica;
 import com.weather.diegojesuscampos.weather.Datos.ZonasViewHolder;
+import com.weather.diegojesuscampos.weather.Interfaces.IMyViewHolderClickListener;
 import com.weather.diegojesuscampos.weather.Interfaces.IShowWeather;
 import com.weather.diegojesuscampos.weather.R;
 
@@ -22,7 +23,7 @@ import java.util.ArrayList;
 public class AdapterListZonasBuscadas extends FirebaseRecyclerAdapter<ObjInfoGeografica, ZonasViewHolder> {
 
     Activity parentActivity;
-    ZonasViewHolder.MyViewHolderClickListener myViewHolderClickListener;
+    IMyViewHolderClickListener myViewHolderClickListener;
 
     private String TAG = getClass().getSimpleName();
 
@@ -51,7 +52,7 @@ public class AdapterListZonasBuscadas extends FirebaseRecyclerAdapter<ObjInfoGeo
     }
 
 
-    public void setMyViewHolderClickListener(ZonasViewHolder.MyViewHolderClickListener listener){
+    public void setMyViewHolderClickListener(IMyViewHolderClickListener listener){
         this.myViewHolderClickListener = listener;
     }
 }

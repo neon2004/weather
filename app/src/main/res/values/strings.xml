@@ -12,4 +12,7 @@
 
     <string name="buscarZonas">Nueva Busqueda</string>
     <string name="zonasAnteriores">Zonas buscadas</string>
+    <string name="guardadoOK">DATOS GUARDADOS CORRECTAMENTE</string>
+    <string name="guardadoKO">ERROR AL GUARDAR DATOS</string>
+    <string name="zonaObligatorio">Campo obligatorio para realizar la busqueda</string>
 </resources>

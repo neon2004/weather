@@ -1,6 +1,5 @@
 package com.weather.diegojesuscampos.weather.Controller;
 
-import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.net.Uri;
@@ -24,12 +23,12 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.weather.diegojesuscampos.weather.Adapter.AdapterInfoWeather;
-import com.weather.diegojesuscampos.weather.Interfaces.IMoveMap;
 import com.weather.diegojesuscampos.weather.Datos.ObjInfoGeografica;
 import com.weather.diegojesuscampos.weather.Datos.ObjWeather;
+import com.weather.diegojesuscampos.weather.Interfaces.IMoveMap;
 import com.weather.diegojesuscampos.weather.R;
 import com.weather.diegojesuscampos.weather.Util.Constants;
-import com.weather.diegojesuscampos.weather.Util.VolleyS;
+
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -38,17 +37,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link MapWeatherFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link MapWeatherFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class MapWeatherFragment extends BaseVolleyFragment  implements OnMapReadyCallback,IMoveMap {
     private GoogleMap mapa;
-    private OnFragmentInteractionListener mListener;
     private VolleyS volley;
     private RequestQueue fRequestQueue;
     private String norte;
@@ -68,10 +58,10 @@ public class MapWeatherFragment extends BaseVolleyFragment  implements OnMapRead
     public static MapWeatherFragment newInstance(ObjInfoGeografica objIngoGeo) {
         MapWeatherFragment fragment = new MapWeatherFragment();
         Bundle args = new Bundle();
-        args.putString(Constants.NORTE, objIngoGeo.getNorte());
-        args.putString(Constants.SUR, objIngoGeo.getSur());
-        args.putString(Constants.ESTE, objIngoGeo.getEste());
-        args.putString(Constants.OESTE, objIngoGeo.getOeste());
+        args.putString(Constants.TAG_NORTE, objIngoGeo.getNorte());
+        args.putString(Constants.TAG_SUR, objIngoGeo.getSur());
+        args.putString(Constants.TAG_ESTE, objIngoGeo.getEste());
+        args.putString(Constants.TAG_OESTE, objIngoGeo.getOeste());
         args.putString(Constants.LAT, objIngoGeo.getLat());
         args.putString(Constants.LONG, objIngoGeo.getLng());
         args.putString(Constants.CIUDAD, objIngoGeo.getLugar());
@@ -91,10 +81,10 @@ public class MapWeatherFragment extends BaseVolleyFragment  implements OnMapRead
         super.onCreate(savedInstanceState);
 
         if (getArguments() != null) {
-            norte = getArguments().getString(Constants.NORTE);
-            sur = getArguments().getString(Constants.SUR);
-            este = getArguments().getString(Constants.ESTE);
-            oeste = getArguments().getString(Constants.OESTE);
+            norte = getArguments().getString(Constants.TAG_NORTE);
+            sur = getArguments().getString(Constants.TAG_SUR);
+            este = getArguments().getString(Constants.TAG_ESTE);
+            oeste = getArguments().getString(Constants.TAG_OESTE);
             lat = getArguments().getString(Constants.LAT);
             lng = getArguments().getString(Constants.LONG);
             ciudad = getArguments().getString(Constants.CIUDAD);
@@ -124,49 +114,11 @@ public class MapWeatherFragment extends BaseVolleyFragment  implements OnMapRead
         return view;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
-
     @Override
     public void moveMap(ObjWeather infoWeather) {
         updateUI(infoWeather);
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
-    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -229,8 +181,6 @@ public class MapWeatherFragment extends BaseVolleyFragment  implements OnMapRead
         url = url.replace(Constants.URLOESTE,oeste);
         url = url.replace(Constants.URLUSERNAME,Constants.USERNAME1);
 
-//        url = "http://api.geonames.org/weatherJSON?north=40.65072578667785&south=40.18227840162254&east=-3.3938449928832797&west=-4.011283486120621&username=ilgeonamessample";
-
         JsonObjectRequest request = new JsonObjectRequest(url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject jsonObject) {
@@ -260,7 +210,7 @@ public class MapWeatherFragment extends BaseVolleyFragment  implements OnMapRead
 
         try {
             // Obtener el array del objeto
-            jsonArray = jsonObject.getJSONArray("weatherObservations");
+            jsonArray = jsonObject.getJSONArray(Constants.TAG_WEATHEROBSERVATION);
 
             for(int i=0; i<jsonArray.length(); i++){
 
@@ -268,15 +218,15 @@ public class MapWeatherFragment extends BaseVolleyFragment  implements OnMapRead
                     JSONObject objeto= jsonArray.getJSONObject(i);
 
 
-                    ObjWeather obj = new ObjWeather(objeto.getString("lng"),
-                            objeto.getString("lat"),
-                            objeto.getString("temperature"), objeto.getString("humidity"),
-                            objeto.getString("stationName"), objeto.getString("weatherCondition"));
+                    ObjWeather obj = new ObjWeather(objeto.getString(Constants.TAG_LONGUITUD),
+                            objeto.getString(Constants.TAG_LATITUD),
+                            objeto.getString(Constants.TAG_TEMPERATURA), objeto.getString(Constants.TAG_HUMEDAD),
+                            objeto.getString(Constants.TAG_ESTACION), objeto.getString(Constants.TAG_CONDICIONCLIMA));
 
                     arrayObjWeather.add(obj);
 
                 } catch (JSONException e) {
-                    Log.e("ERROR", "Error de parsing: "+ e.getMessage());
+                    Log.e("ERROR PARSEO", "Error de parsing: "+ e.getMessage());
                 }
             }
 

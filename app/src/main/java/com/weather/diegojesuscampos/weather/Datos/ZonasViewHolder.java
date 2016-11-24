@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.weather.diegojesuscampos.weather.Interfaces.IMyViewHolderClickListener;
 import com.weather.diegojesuscampos.weather.R;
 
 /**
@@ -20,27 +21,17 @@ public class ZonasViewHolder extends RecyclerView.ViewHolder implements View.OnC
     public ObjInfoGeografica objInfoZona;
 
 
-    public MyViewHolderClickListener mListener;
+    public IMyViewHolderClickListener mListener;
 
     private String TAG= getClass().getSimpleName();
-
-    public static interface MyViewHolderClickListener{
-
-        public void onItemClick(ObjInfoGeografica objInfo);
-//        public void onTextViewNameClick(View view, int position);
-//        public void onTextViewRollClick(View view, int position);
-    }
 
     public ZonasViewHolder(View itemView) {
         super(itemView);
         textViewCiudad = (TextView) itemView.findViewById(R.id.txtCiudad);
         textViewPais = (TextView) itemView.findViewById(R.id.txtPais);
         layout = (LinearLayout) itemView.findViewById(R.id.layoutBuscarZona);
-
-
         layout.setOnClickListener(this);
-//        textViewCiudad.setOnClickListener(this);
-//        textViewPais.setOnClickListener(this);
+
     }
 
 
@@ -54,7 +45,7 @@ public class ZonasViewHolder extends RecyclerView.ViewHolder implements View.OnC
         textViewPais.setText(objInfo.getPais());
     }
 
-    public void setCustomOnClickListener(MyViewHolderClickListener listener  ){
+    public void setCustomOnClickListener(IMyViewHolderClickListener listener  ){
         this.mListener = listener;
     }
 
@@ -69,13 +60,6 @@ public class ZonasViewHolder extends RecyclerView.ViewHolder implements View.OnC
                 case R.id.layoutBuscarZona:
                     mListener.onItemClick(objInfoZona);
                     break;
-//                case R.id.txtCiudad:
-//                    mListener.onTextViewNameClick(view, getAdapterPosition());
-//                    break;
-//                case R.id.txtPais:
-//                    mListener.onTextViewRollClick(view, getAdapterPosition());
-//                    break;
-
                 default:
                     break;
             }

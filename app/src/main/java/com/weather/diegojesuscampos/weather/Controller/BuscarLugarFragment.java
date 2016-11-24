@@ -138,18 +138,6 @@ public class BuscarLugarFragment extends BaseVolleyFragment implements IShowWeat
             }
         });
 
-
-//        etCiudad.setOnKeyListener(new View.OnKeyListener() {
-//            public boolean onKey(View v, int keyCode, KeyEvent event) {
-//                // If the event is a key-down event on the "enter" button
-//                if ((event.getAction() == KeyEvent.ACTION_DOWN) &&   (keyCode == KeyEvent.KEYCODE_ENTER)) {
-//                    // Perform action on key press
-//                    validarCiudad(etCiudad.getText().toString());
-//                    return true;
-//                }
-//                return false;
-//            }
-//        });
         
         //REFERENCIA A LA BD
         mDatabase = FirebaseDatabase.getInstance().getReference();
@@ -183,9 +171,9 @@ public class BuscarLugarFragment extends BaseVolleyFragment implements IShowWeat
             @Override
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                 if(databaseError == null){
-                    Toast.makeText(getActivity(),"DATOS GUARDADOS",Toast.LENGTH_LONG).show();
+                    Toast.makeText(getActivity(),getString(R.string.guardadoOK),Toast.LENGTH_LONG).show();
                 }else{
-                    Toast.makeText(getActivity(),"ERROR AL GUARDAR DATOS ",Toast.LENGTH_LONG).show();
+                    Toast.makeText(getActivity(),getString(R.string.guardadoKO),Toast.LENGTH_LONG).show();
 
                 }
             }
@@ -227,7 +215,7 @@ public class BuscarLugarFragment extends BaseVolleyFragment implements IShowWeat
             makeRequest();
             tilCiudad.setError(null);
         }else{
-            tilCiudad.setError("Es necesario introducir un lugar");
+            tilCiudad.setError(getString(R.string.zonaObligatorio));
         }
     }
 
@@ -238,19 +226,19 @@ public class BuscarLugarFragment extends BaseVolleyFragment implements IShowWeat
 
         try {
             // Obtener el array del objeto
-            jsonArray = jsonObject.getJSONArray("geonames");
+            jsonArray = jsonObject.getJSONArray(Constants.TAG_GEONAMES);
 
             for(int i=0; i<jsonArray.length(); i++){
 
                 try {
                     JSONObject objeto= jsonArray.getJSONObject(i);
-                    JSONObject puntosCardenale = objeto.getJSONObject("bbox");
+                    JSONObject puntosCardenale = objeto.getJSONObject(Constants.TAG_BBOX);
 
-                    ObjInfoGeografica obj = new ObjInfoGeografica(i+"",objeto.getString("toponymName"),
-                            puntosCardenale.getString("north"),
-                            puntosCardenale.getString("south"), puntosCardenale.getString("east"),
-                            puntosCardenale.getString("west"), objeto.getString("lat"),
-                            objeto.getString("lng") , objeto.getString("countryName"), objeto.getString("adminName2"));
+                    ObjInfoGeografica obj = new ObjInfoGeografica(i+"",objeto.getString(Constants.TAG_TYPONAME),
+                            puntosCardenale.getString(Constants.TAG_NORTE),
+                            puntosCardenale.getString(Constants.TAG_SUR), puntosCardenale.getString(Constants.TAG_ESTE),
+                            puntosCardenale.getString(Constants.TAG_OESTE), objeto.getString("lat"),
+                            objeto.getString(Constants.TAG_LONGUITUD) , objeto.getString(Constants.TAG_COUNTRYNAME), objeto.getString(Constants.TAG_ADMINNAME2));
 
                     arrayObjInfGeo.add(obj);
 

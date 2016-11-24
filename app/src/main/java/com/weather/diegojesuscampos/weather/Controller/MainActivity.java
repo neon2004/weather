@@ -27,6 +27,7 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.weather.diegojesuscampos.weather.Datos.ObjInfoGeografica;
 import com.weather.diegojesuscampos.weather.R;
+import com.weather.diegojesuscampos.weather.Util.Constants;
 import com.weather.diegojesuscampos.weather.Util.VolleyS;
 
 public class MainActivity extends AppCompatActivity implements   GoogleApiClient.OnConnectionFailedListener,
@@ -175,10 +176,10 @@ public class MainActivity extends AppCompatActivity implements   GoogleApiClient
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.buscarZonas:
-                changeFragment(null,"BuscarZona");
+                changeFragment(null, Constants.TAG_BUSCARZONA);
                 return true;
             case R.id.zonasBuscadas:
-                changeFragment(null,"ZonaBuscada");
+                changeFragment(null,Constants.TAG_ZONABUSCADA);
                 return true;
 
             default:

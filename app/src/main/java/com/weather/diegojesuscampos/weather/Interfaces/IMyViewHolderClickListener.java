@@ -7,5 +7,6 @@ import com.weather.diegojesuscampos.weather.Datos.ObjInfoGeografica;
  */
 
 public interface IMyViewHolderClickListener {
-    void showWeatherPLaces(ObjInfoGeografica infoPlace);
+     void onItemClick(ObjInfoGeografica objInfo);
 }
+
